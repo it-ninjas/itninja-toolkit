@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+      - 'V*'
 
 permissions:
   contents: write
@@ -18,13 +19,17 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+      - name: Read version from tag
+        id: version
+        shell: bash
+        run: echo "value=${GITHUB_REF_NAME:1}" >> "$GITHUB_OUTPUT"
       - name: Build and test
-        run: mvn --batch-mode clean package
+        run: mvn --batch-mode -Drevision=${{ steps.version.outputs.value }} clean package
       - name: Create GitHub release with JAR
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
           gh release create "$GITHUB_REF_NAME"
-          target/itninja-toolkit-1.0.0.jar#itninja-toolkit-1.0.0.jar
+          target/itninja-toolkit-${{ steps.version.outputs.value }}.jar#itninja-toolkit-${{ steps.version.outputs.value }}.jar
           --generate-notes
           --title "$GITHUB_REF_NAME"

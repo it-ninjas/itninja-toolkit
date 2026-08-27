@@ -1,0 +1,7 @@
+jdk:
+  - openjdk21
+
+# JitPack provides VERSION from the requested Git tag. The first character is
+# the conventional V/v prefix and is removed for Maven's internal version.
+install:
+  - mvn --batch-mode -Drevision=${VERSION#?} -DskipTests install

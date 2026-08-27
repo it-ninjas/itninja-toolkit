@@ -39,7 +39,7 @@ Zeichen, die der gewählte Font nicht exakt in einer Zeichenbreite darstellen ka
 <dependency>
   <groupId>com.github.it-ninjas</groupId>
   <artifactId>itninja-toolkit</artifactId>
-  <version>v1.0.0</version>
+  <version>V0.9.0</version>
 </dependency>
 ```
 
@@ -50,3 +50,6 @@ Die Bibliothek benötigt Java 21 und keine Laufzeitabhängigkeiten.
 ```shell
 mvn clean test
 ```
+
+Lokale Builds verwenden die Snapshot-Version aus dem `pom.xml`. JitPack und der
+Release-Workflow übernehmen die feste Version automatisch aus dem Git-Tag.

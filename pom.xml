@@ -6,9 +6,11 @@
 
   <groupId>ch.itninja</groupId>
   <artifactId>itninja-toolkit</artifactId>
-  <version>1.0.0</version>
+  <version>${revision}</version>
 
   <properties>
+    <!-- Overridden by JitPack and the release workflow from the Git tag. -->
+    <revision>0.10.0-SNAPSHOT</revision>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
