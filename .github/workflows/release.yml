@@ -5,6 +5,12 @@ on:
     tags:
       - 'v*'
       - 'V*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing Git tag to build and publish
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -12,8 +18,12 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -22,14 +32,20 @@ jobs:
       - name: Read version from tag
         id: version
         shell: bash
-        run: echo "value=${GITHUB_REF_NAME:1}" >> "$GITHUB_OUTPUT"
+        run: echo "value=${RELEASE_TAG:1}" >> "$GITHUB_OUTPUT"
       - name: Build and test
         run: mvn --batch-mode -Drevision=${{ steps.version.outputs.value }} clean package
-      - name: Create GitHub release with JAR
+      - name: Create or update GitHub release with JAR
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create "$GITHUB_REF_NAME"
-          target/itninja-toolkit-${{ steps.version.outputs.value }}.jar#itninja-toolkit-${{ steps.version.outputs.value }}.jar
-          --generate-notes
-          --title "$GITHUB_REF_NAME"
+        shell: bash
+        run: |
+          asset="target/itninja-toolkit-${{ steps.version.outputs.value }}.jar#itninja-toolkit-${{ steps.version.outputs.value }}.jar"
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$asset" --clobber
+          else
+            gh release create "$RELEASE_TAG" "$asset" \
+              --generate-notes \
+              --title "$RELEASE_TAG"
+          fi
